@@ -24,6 +24,7 @@ public class Renderer {
 	private static boolean isStackActive = false;
 	
 	private static Light light0 = new Light();
+	private static float[] ambientLight = {.5f, .5f, .5f};
 	
 	// triangle for testing
 //	Vector4[] vecs = { new Vector4((float)(Math.cos(0)*1.5), (float)(Math.sin(0)*1.5), 0, 1), 
@@ -112,6 +113,10 @@ public class Renderer {
 		modelMatrix = T.mult(scaleMatrix);
 	}
 	
+	public void setAmbientLight(float[] ambientLight){
+		Renderer.ambientLight = ambientLight;
+	}
+	
 	public void display(Shape shape){
 		
 		// create view Matrix
@@ -122,25 +127,16 @@ public class Renderer {
 		// other option is to use Frustum
 		//Matrix4 perspectiveMatrix = Matrix4.getFrustum(-2, 2, -1.5f, 1.5f, 1, 40, Matrix4.Projection.PERSPECTIVE);		
 		
-		
-		
-		// lighting - not going to worry about asymmetrical scaling for now
-		// so normals are transformed with modelview matrix
-		
-		
-		// 3 separate matrices no lighting
-		//shape.display(modelMatrix, viewMatrix, perspectiveMatrix);
-		
 		// concatenated MVP matrix no lighting
 		Matrix4 MVP = new Matrix4(1); // create new matrix set to identity
 		MVP = MVP.mult(perspectiveMatrix);
 		MVP = MVP.mult(viewMatrix);
 		MVP = MVP.mult(modelMatrix);
-		//shape.display(MVP);
+		shape.display(MVP, light0, ambientLight);
 		
 		// 3 separate matrices no lighting
 		// this should be refactored!!
-		shape.display(modelMatrix, viewMatrix, perspectiveMatrix, light0);
+		//shape.display(modelMatrix, viewMatrix, perspectiveMatrix, light0);
 	}
 
 }

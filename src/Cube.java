@@ -3,8 +3,8 @@ import processing.core.PApplet;
 
 public class Cube extends Shape{
 
-	public Cube(PApplet p){
-		super(p);
+	public Cube(PApplet p, float[] col){
+		super(p, col);
 		init();
 	}
 

@@ -3,8 +3,14 @@ import processing.core.PApplet;
 public class Face {
 	public Vector3 v0, v1, v2, n;
 	
+	public float diffuseIntensity = 0;
+	
+	
 	// face colors
-	public float[] col = {.4f, .5f, .45f, 1};
+	public float[] col = {1, 1, 1, 1};
+	// lighting
+	public float[] ambientLight = {.5f, .5f, .5f, 1};
+	public float[] diffuseCol = {1, 1, 1, 1};
 	
 	public Face(){
 		v0 = new Vector3();
@@ -42,7 +48,19 @@ public class Face {
 		n = getNormal();
 	}
 	
-	public void display(PApplet p){
+	public void setLighting(float diffuseIntensity, float[] ambientLight, float[] diffuseCol){
+		this.diffuseCol = diffuseCol;
+		this.ambientLight = ambientLight;
+		if(diffuseIntensity>0){
+				this.diffuseIntensity = diffuseIntensity;
+		} else {
+			diffuseIntensity = 0;
+		}
+	}
+	
+	public void display(PApplet p, float[] col){
+		p.colorMode(p.RGB, 1.0f);
+		p.fill(col[0]+diffuseCol[0]*diffuseIntensity+ambientLight[0], col[1]+diffuseCol[1]*diffuseIntensity+ambientLight[1], col[2]+diffuseCol[2]*diffuseIntensity+ambientLight[2], 1);
 		p.beginShape();		
 		p.vertex(v0.x, v0.y);
 		p.vertex(v1.x, v1.y);
@@ -50,14 +68,5 @@ public class Face {
 		p.endShape(p.CLOSE);
 	}
 	
-	public void display(PApplet p, float[] col){
-		p.colorMode(p.RGB, 1.0f);
-		p.fill(col[0], col[1], col[2], col[3]);
-		p.beginShape();		
-		p.vertex(v0.x, v0.y);
-		p.vertex(v1.x, v1.y);
-		p.vertex(v2.x, v2.y);
-		p.endShape(p.CLOSE);
-	}
 	
 }

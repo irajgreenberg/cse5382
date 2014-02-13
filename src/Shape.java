@@ -10,8 +10,10 @@ public abstract class Shape {
 	public Vector3[] transformedVecs;
 	public Face[] faces;
 	public Tuple[] indices;
+	public float[] col = {.7f, .7f, .7f, 1};
 
-	public Shape(PApplet p) {
+	public Shape(PApplet p, float[] col) {
+		this.col = col;
 		this.p = p;
 	}
 
@@ -72,17 +74,18 @@ public abstract class Shape {
 		
 		// draw individual faces
 		for (int i = 0; i < faces.length; ++i) {
-			faces[i].display(p);
+			faces[i].display(p, col);
 		}
 	}
 	
-	public void display(Matrix4 MVP) {
-//		m.printMatrix("model");
-		//pm.printMatrix("projection2");
+	public void display(Matrix4 MVP, Light light0, float[] ambientLight) {
 		// transform vecs and build faces
 		transformedVecs = new Vector3[vecs.length];
+		Vector3[] deviceNormalizedVecs = new Vector3[vecs.length];
+		
 		for(int i=0; i<vecs.length; ++i){
 			Vector4 tv = MVP.mult(new Vector4(vecs[i]));
+			transformedVecs[i] = new Vector3(tv); // vecs in world space
 			
 			tv.x = tv.x/tv.w;
 			tv.y = tv.y/tv.w;
@@ -96,14 +99,29 @@ public abstract class Shape {
 			tv.x = tv.x*p.width + 0;
 			tv.y = tv.y*p.height + 0;
 			
-			transformedVecs[i] = new Vector3(tv);
+			deviceNormalizedVecs[i] = new Vector3(tv); // vecs in device space
 		}
 		
 		// update faces
 		for (int i=0; i<faces.length; i++) {
-			faces[i].v0 = transformedVecs[indices[i].elem0];
-			faces[i].v1 = transformedVecs[indices[i].elem1];
-			faces[i].v2 = transformedVecs[indices[i].elem2];
+			
+			// lighting
+			Face face = new Face(transformedVecs[indices[i].elem0], transformedVecs[indices[i].elem1], transformedVecs[indices[i].elem2]);
+			Vector3 N = face.getNormal();
+			Vector3 L = new Vector3();
+			L.setTo(face.v0);
+			L.sub(light0.pos);
+			N.normalize();
+			L.normalize();
+			float diffuseIntensity = L.dot(N);
+			
+
+			faces[i].setLighting(diffuseIntensity, ambientLight, light0.col);
+			
+			// fill faces with normalized screen coords
+			faces[i].v0 = deviceNormalizedVecs[indices[i].elem0];
+			faces[i].v1 = deviceNormalizedVecs[indices[i].elem1];
+			faces[i].v2 = deviceNormalizedVecs[indices[i].elem2];
 		}
 		
 		// sort depth based on normal.z
@@ -111,7 +129,7 @@ public abstract class Shape {
 		
 		// draw individual faces
 		for (int i = 0; i < faces.length; ++i) {
-			faces[i].display(p);
+			faces[i].display(p, col);
 		}
 	}
 	
@@ -153,22 +171,7 @@ public abstract class Shape {
 			
 			// draw individual faces
 			for (int i = 0; i < faces.length; ++i) {
-		
-				// calculate simple lighting W/O having to transform normals
-//				Vector3 lightVec = light0.pos;
-//				Vector3 pt = faces[i].v0;
-//				Vector3 N = faces[i].getNormal();
-//				lightVec.sub(pt); // vector to normal
-//				lightVec.normalize();
-//				N.normalize();
-				//N.mult(100);
-//				System.out.println("N.mag = " + N.mag());
-//				System.out.println("pt = " + pt.x + ", " +  + pt.y + ", "  + pt.z);
-//				System.out.println("lightVec = " + lightVec.x + ", " +  + lightVec.y + ", "  + lightVec.z);
-//				System.out.println("N = " + N.x + ", " +  + N.y + ", "  + N.z);
-//				System.out.println("Light Intensity = " + Math.acos(N.dot(lightVec)));
-				
-				faces[i].display(p);
+				faces[i].display(p, col);
 			}
 		}
 
