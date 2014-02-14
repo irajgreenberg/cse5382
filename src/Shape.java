@@ -12,6 +12,9 @@ public abstract class Shape {
 	public Tuple[] indices;
 	public float[] col = {.7f, .7f, .7f, 1};
 
+	public Shape(){
+	}
+			
 	public Shape(PApplet p, float[] col) {
 		this.col = col;
 		this.p = p;
